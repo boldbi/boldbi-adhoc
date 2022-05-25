@@ -25,6 +25,8 @@ namespace SampleCoreApp.Models
         public List<SamplesTreeViewModel> SamplesCollection { get; set; }
 
         public Token UserToken { get; set; }
+
+        public string ChangedUserEmail { get; set; }
     }
 
     public class SamplesTreeViewModel

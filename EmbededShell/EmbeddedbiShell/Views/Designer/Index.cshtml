@@ -11,7 +11,8 @@
     var category = ViewBag.Category as ApiItems;
     var baseUrl = globalAppSettings.EmbedDetails.BaseUrl;
     var token = ViewBag.Token;
-    var draftId = ViewBag.DraftId;
+    var draftId = ViewBag.DraftId;    
+    var changeIndexUrl = @Url.Action("ChangeSiteIndex", "Home");
     var datasourceName = ViewBag.DatasourceName != null ? ViewBag.DatasourceName as string : "";
 }
 
@@ -30,6 +31,7 @@
     var deleteItemUrl = "@Url.Action("DeleteItem", "Home")";
     var mode = BoldBI.Mode.Design;
     var serverUrl = "@serverUrl";
+    //var serverUrl = "@changeIndexUrl";
     var dashboardPath = "";
     var environment = "@environment" === "cloud" ? BoldBI.Environment.Cloud : BoldBI.Environment.Enterprise;
     var authorizeUrl = "@authorizeUrl";
@@ -39,7 +41,7 @@
     var permissionDbUrl = "@permissionDbUrl";
     var permissionDsUrl = "@permissionDsUrl";
     var baseUrl = "@baseUrl";
-    var id = "@draftId"; 
+    var id = "@draftId";
     var token = "@Html.Raw(@token)";
     var catagoryId = "1";
     var datasourceName = "@datasourceName";

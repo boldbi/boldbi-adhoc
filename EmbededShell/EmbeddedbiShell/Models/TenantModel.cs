@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,10 +11,11 @@ namespace SampleCoreApp.Models
 {
     public class TenantModel
     {
+
         public TenantModel()
         {
         }
-
+        public string CurrentUserEmail = string.Empty;
         public static ConcurrentDictionary<string, GlobalAppSettings> TenantAppSettings
         {
             get;
@@ -167,7 +169,6 @@ namespace SampleCoreApp.Models
         //            {
         //                globalAppSettings.UserDetails = userDetail;
         //            }
-
         //        }
         //    }
         //    return globalAppSettings;
@@ -179,6 +180,7 @@ namespace SampleCoreApp.Models
             globalAppSettings.SamplesCollection = samplesCollectionManager.GetTreeViewModelCollection();
             globalAppSettings.SamplesSchemaCollection = samplesCollectionManager.GetSchemaViewModel();
             globalAppSettings.UserToken = new DashboardModel().GetToken(email);
+            globalAppSettings.ChangedUserEmail = email;
             return globalAppSettings;
         }
     }

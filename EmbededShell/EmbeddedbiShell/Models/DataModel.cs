@@ -62,26 +62,19 @@ namespace SampleCoreApp.Models
 
     public class User
     {
+        public string Email
+        {
+            get;
+            set;
+        }
+
         public string DisplayName
         {
             get;
             set;
         }
 
-        public string Email
-        {
-            get;
-            set;
-        }
-    }
-
-    public class UserDetail
-    {
-        public List<User> Users
-        {
-            get;
-            set;
-        }
+        
     }
 
     public class EmbedDetails
@@ -136,6 +129,17 @@ namespace SampleCoreApp.Models
         public string SiteIdentifier
         {
             get;set;
+        }
+
+        public List<User> UserDetails
+        {
+            get;
+            set;
+        }
+        public Int32 ChangeUserIndex
+        {
+            get;
+            set;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,8 @@ namespace SampleCoreApp.Models
 
         public string GetDataSources(string email = null)
         {
-            var token = GetToken(_globalAppSettings.EmbedDetails.Email);
+            var userEmail=(string.IsNullOrEmpty(email))? _globalAppSettings.EmbedDetails.UserDetails[0].Email : email;
+            var token = GetToken(userEmail);
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(_globalAppSettings.EmbedDetails.RootUrl);
@@ -101,7 +103,7 @@ namespace SampleCoreApp.Models
                     foreach (var permission in resultContent)
                     {
                         permissionId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionId"].ToString();
-                        itemId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString();
+                        //itemId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString();
                         permissionEntity = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionEntity"].ToString();
                         permissionAccess = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionAccess"].ToString();
                         if (permissionEntity.ToLower().Contains("dash"))
@@ -125,7 +127,7 @@ namespace SampleCoreApp.Models
                     foreach (var permission in resultContent)
                     {
                         permissionId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionId"].ToString();
-                        itemId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString();
+                        itemId = (Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"] != null) ? Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString() : string.Empty;
                         permissionEntity = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionEntity"].ToString();
                         permissionAccess = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionAccess"].ToString();
                         if (permissionEntity.ToLower().Contains("dash"))
@@ -181,7 +183,6 @@ namespace SampleCoreApp.Models
                     foreach (var permission in resultContent)
                     {
                         permissionId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionId"].ToString();
-                        itemId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString();
                         permissionEntity = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionEntity"].ToString();
                         permissionAccess = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionAccess"].ToString();
                         if (permissionEntity.ToLower().Contains("data"))
@@ -205,7 +206,7 @@ namespace SampleCoreApp.Models
                     foreach (var permission in resultContent)
                     {
                         permissionId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionId"].ToString();
-                        itemId = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString();
+                        itemId = (Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"]!=null)? Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["ItemId"].ToString():string.Empty;
                         permissionEntity = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionEntity"].ToString();
                         permissionAccess = Newtonsoft.Json.Linq.JObject.Parse(permission.ToString())["PermissionAccess"].ToString();
                         if (permissionEntity.ToLower().Contains("data"))
@@ -221,7 +222,7 @@ namespace SampleCoreApp.Models
                                         new KeyValuePair<string, string>("PermissionAccess", "Read"),
                                         new KeyValuePair<string, string>("UserId", userDetails.UserId.ToString()),
                                         new KeyValuePair<string, string>("PermissionEntity", permissionEntity),
-                                        new KeyValuePair<string, string>("ItemId", itemId)
+                                        new KeyValuePair<string, string>("ItemId", itemId.ToString())
                                     });
                                     response = client.PostAsync(_globalAppSettings.EmbedDetails.RootUrl + "/api/" + _globalAppSettings.EmbedDetails.SiteIdentifier + "/v2.0/permissions/users/", content).Result;
                                 }
@@ -267,13 +268,13 @@ namespace SampleCoreApp.Models
 
         public Token GetToken(string email = "")
         {
-            email = string.IsNullOrWhiteSpace(email) ? _globalAppSettings.EmbedDetails.Email : email;
+            var userEmail = (string.IsNullOrEmpty(email)) ? _globalAppSettings.EmbedDetails.UserDetails[0].Email : email;
             using (var client = new HttpClient())
             {
                 var content = new FormUrlEncodedContent(new[]
                 {
                     new KeyValuePair<string, string>("grant_type", "embed_secret"),
-                    new KeyValuePair<string, string>("Username", email),
+                    new KeyValuePair<string, string>("Username", userEmail),
                     new KeyValuePair<string, string>("embed_secret", _globalAppSettings.EmbedDetails.EmbedSecret)
                 });
 
@@ -328,6 +329,18 @@ namespace SampleCoreApp.Models
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, 30)
               .Select(s => s[random.Next(s.Length)]).ToArray()).ToString().ToLower();
+        }
+        public string GetDisplayName(string email)
+        {
+            string displayName = string.Empty;
+            foreach (var user in _globalAppSettings.EmbedDetails.UserDetails)
+            {
+                if (user.Email.Equals(email))
+                {
+                    displayName = user.DisplayName;
+                }
+            }
+            return displayName;
         }
     }
 }

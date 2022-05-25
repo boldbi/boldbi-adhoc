@@ -20,8 +20,11 @@ namespace SampleCoreApp.Controllers
     {
         private readonly GlobalAppSettings _globalAppSettings;
         private readonly TenantModel _tenantModel = new TenantModel();
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public HomeController(IHttpContextAccessor contextAccessor)
         {
+            _httpContextAccessor = contextAccessor;
             _globalAppSettings = _tenantModel.GetTenantConfig(contextAccessor.HttpContext.Request.Host.Value);
         }
 
@@ -31,18 +34,19 @@ namespace SampleCoreApp.Controllers
             var updatedSettings = _globalAppSettings;
             ServerUser userDetails = null;
             SamplesTreeViewModel model = null;
-            ViewBag.UserId = 1;
+             email = Request.Cookies["useremail"];
+            _globalAppSettings.ChangedUserEmail = (string.IsNullOrEmpty(email))?_globalAppSettings.EmbedDetails.UserDetails[0].Email :email;
+             ViewBag.UserId = 1;
             if (email != null)
             {
-                var adminToken = new DashboardModel().GetToken();
+                var adminToken = new DashboardModel().GetToken(_globalAppSettings.EmbedDetails.AdminEmail);
                 userDetails = new UserManagement().IsUserExist(email, adminToken.AccessToken);
                 if (userDetails != null)
                 {
                     updatedSettings = _tenantModel.GetUpdateSchema(_globalAppSettings, userDetails.Email);
                     updatedSettings.UserDetails = userDetails;
-                    ViewBag.UserDisplayName = userDetails.DisplayName;
-                    var encrptedEmail = DoEncryption(email);
-                    ViewBag.Token = encrptedEmail;
+                    ViewBag.UserDisplayName = new DashboardModel().GetDisplayName(userDetails.Email);
+                    ViewBag.Token = new DashboardModel().GetToken(email).AccessToken;
                     ViewBag.UserId = userDetails.UserId;
                 }
                 else
@@ -55,9 +59,8 @@ namespace SampleCoreApp.Controllers
                 updatedSettings = _tenantModel.GetUpdateSchema(_globalAppSettings);
                 updatedSettings.UserDetails = null;
                 var adminToken = new DashboardModel().GetToken();
-                userDetails = new UserManagement().IsUserExist(_globalAppSettings.EmbedDetails.Email, adminToken.AccessToken);
+                userDetails = new UserManagement().IsUserExist(_globalAppSettings.EmbedDetails.UserDetails[0].Email, adminToken.AccessToken);
                 ViewBag.UserId = userDetails.UserId;
-                //return View("Error");
             }
 
 
@@ -108,7 +111,7 @@ namespace SampleCoreApp.Controllers
                 else
                 {
                     sampleName = sampleName.Contains("&") ? sampleName.Substring(0, sampleName.IndexOf("&")) : sampleName;
-                    model = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower() == sampleName.ToLower() && i.ParentName.ToLower() == categoryName.ToLower());
+                    model = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower() == sampleName.ToLower() && i.ParentName!=null && i.ParentName.ToLower() == categoryName.ToLower());
                     if (model != null)
                     {
                         ViewBag.ParentName = model.ParentName;
@@ -132,14 +135,14 @@ namespace SampleCoreApp.Controllers
             return View();
         }
 
+
         [HttpPost]
         [Route("GetDetails")]
         public string GetDetails([FromBody] object embedQuerString)
         {
             var userEmail = Request.Cookies["useremail"];
             var embedClass = JsonConvert.DeserializeObject<EmbedClass>(embedQuerString.ToString());
-            if (string.IsNullOrEmpty(userEmail))
-                userEmail = _globalAppSettings.EmbedDetails.Email;
+            userEmail = (string.IsNullOrEmpty(userEmail)) ? _globalAppSettings.EmbedDetails.AdminEmail: _globalAppSettings.ChangedUserEmail;
             var embedQuery = embedClass.embedQuerString;
             embedQuery += "&embed_user_email=" + userEmail;
             var embedDetailsUrl = "/embed/authorize?" + embedQuery.ToLower() + "&embed_signature=" + new EmbedAction(_globalAppSettings).GetSignatureUrl(embedQuery.ToLower());
@@ -153,6 +156,13 @@ namespace SampleCoreApp.Controllers
                 string resultContent = result.Content.ReadAsStringAsync().Result;
                 return resultContent;
             }
+        }
+
+        [HttpPost]
+        [Route("change-index")]
+        public void ChangeSiteIndex(string email)
+        {
+            _tenantModel.CurrentUserEmail = email;
         }
 
         [HttpPost]

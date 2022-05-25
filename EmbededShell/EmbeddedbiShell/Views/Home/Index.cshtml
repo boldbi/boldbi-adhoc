@@ -17,6 +17,7 @@
     var title = string.IsNullOrWhiteSpace(Model?.Title) ? "" : Model.Title;
     var dashboardPath = string.IsNullOrWhiteSpace(Model?.DashboardPath) ? "" : Model.DashboardPath;
     var parentId = Model != null && Model.ParentId > 0 ? Model.ParentId : 0;
+    var userDetails = globalAppSettings.EmbedDetails.UserDetails;
 }
 
 @model SampleCoreApp.Models.SamplesTreeViewModel
@@ -49,7 +50,7 @@
     var catagoryId = "@parentId";
     var datasourceName = "";
 
-    $(document).ready(function () {https://gitlab.syncfusion.com/data-science/embedded-bi-shell/blob/development/EmbededShell/EmbeddedbiShell/Models/SamplesManager.cs
+    $(document).ready(function () {
         embedSample();
-    }); 
+    });
 </script>

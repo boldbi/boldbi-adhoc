@@ -1,6 +1,6 @@
 ﻿var dashboardName = "";
 var dashboardId = "";
-
+var dashboard_ItemId="";
 var isEmptyOrWhiteSpace = function (str) {
 	return typeof (str) === "undefined" || str === null || str.match(/^ *$/) !== null;
 };
@@ -87,9 +87,9 @@ function embedSample() {
                 },
                 authorizationServer: {
                     url: authorizeUrl,
-                    headers: {
-                        "authorizeToken": isEmptyOrWhiteSpace(token) ? "" : token
-                    },
+                    //headers: {
+                    //    "authorizeToken": isEmptyOrWhiteSpace(token) ? "" : token
+                    //},
                     authorizionComplete: "clientAuthorizionComplete"
                 },
                 toolbarSettings: {
@@ -115,6 +115,7 @@ $('.dashboard-section').css('height', 'calc(100% - ' + $('.header-section').heig
 
 
 function renderActionBegin(arg) {
+      dashboard_ItemId = arg.model.itemId;
     $('.dashboard-section').css('height', 'calc(100% - ' + $('.header-section').height() + 'px');
     // Handler
 }
@@ -133,7 +134,7 @@ function EditDashboard(args) {
 
 $("#save-item").on("click", function () {
     var name = getParams(document.location.href, "name");
-    var dbrdInstance = $("#sample_dashboard_embeddedbi").data("ejDashboardDesigner");
+    var dbrdInstance = $("#sample_dashboard_embeddedbi").data("BoldBIDashboardDesigner");
     var id = getParams(document.location.href, "id");
     if (name === undefined) {
         name = dbrdInstance.model.dashboardName;
@@ -218,7 +219,9 @@ function openDesignerForCreate(dbrdName) {
 }
 
 function ViewDashboard(args) {
-    document.location.href = args.dataset.src;
+    if (dashboard_ItemId != args.dataset.itemid) {
+        document.location.href = args.dataset.src;
+    }
 }
 
 function CreateNew() {
@@ -386,6 +389,7 @@ function MakePublicDashboard(isPublic, dbrdName, itemId) {
     });
 }
 
+
 function dbrdChkChange(e) {
     $(".overlayload").show();
     $.ajax({
@@ -413,5 +417,64 @@ function dsChkChange(e) {
             }
         }
     });
+    function dbrdChkChange(e) {
+        $(".overlayload").show();
+        $.ajax({
+            type: "POST",
+            url: permissionDbUrl,
+            data: { chkValue: e.checked, userId: currentUserId, userEmail: currentUserEmail },
+            success: function (response) {
+                $(".overlayload").hide();
+                if (response.toLowerCase() === "ok") {
+                    document.location.href = baseUrl;
+                }
+            }
+        });
+    }
+    
+}
+$(document).ready(function () {
+    $('.dropdown-submenu a.user').on("click", function (e) {
+        $(this).next('ul').toggle();
+        e.stopPropagation();
+        e.preventDefault();
+    });
+});
+
+//$(document).on("click", '.dropdown-submenu a.user', function () {
+//    $(this).next('ul').toggle();
+//    e.stopPropagation();
+//    e.preventDefault();
+//});
+
+function switchUser(changedEmail, args) {
+    var userEmail = getParams(document.location.href, "email");
+    var cookie = getCookie("useremail");
+    if(cookie != changedEmail)
+        setCookie("useremail", changedEmail);
+    document.location.href = baseUrl + "?email=" + changedEmail;
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 

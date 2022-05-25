@@ -15,6 +15,7 @@ namespace SampleCoreApp.Models
     public class SamplesCollectionManager
     {
         public SamplesDetails _samplesModel;
+        public string _userEmail;
 
         public SamplesCollectionManager(string filePath, string userEmail = null)
         {
@@ -22,6 +23,7 @@ namespace SampleCoreApp.Models
             TextReader reader = new StreamReader(@"" + filePath);
             _samplesModel = (SamplesDetails)deserializer.Deserialize(reader);
             _samplesModel = GetChildElement(_samplesModel, userEmail);
+            _userEmail = userEmail;
             reader.Close();
             deserializer = null;
         }
@@ -242,7 +244,7 @@ namespace SampleCoreApp.Models
 
         public SamplesSchemaViewModel FillSamplesSchema(SamplesSchemaViewModel parent)
         {
-            var response = JsonConvert.DeserializeObject<List<APIResponse>>(new DashboardModel().GetDataSources());
+            var response = JsonConvert.DeserializeObject<List<APIResponse>>(new DashboardModel().GetDataSources(_userEmail));
             if (parent.Samples == null)
                 parent.Samples = new List<SamplesSchemaViewModel>();
             foreach (var item in _samplesModel.Samples.Where(i => i.CategoryId == parent.Id))

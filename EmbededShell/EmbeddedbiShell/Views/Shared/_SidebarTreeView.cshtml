@@ -8,18 +8,19 @@
     var email = Model != null && Model.UserDetails != null && !string.IsNullOrWhiteSpace(Model.UserDetails.Email) ? Model.UserDetails.Email : null;
     var userID = ViewBag.UserId;
     var updateSampleUrl = Url.Action("", "Home");
+
     var dashboardName = ViewBag.DashboardName;
     List<SamplesSchemaViewModel> myDashboards = new List<SamplesSchemaViewModel>();
     List<SamplesSchemaViewModel> sharedDashboards = new List<SamplesSchemaViewModel>();
     List<SamplesSchemaViewModel> dashboards = Model.SamplesSchemaCollection[0].Samples;
     List<SamplesSchemaViewModel> datasources = Model.SamplesSchemaCollection[0].DataSources;
     bool isDbCheck = true;
-    bool isDsCheck = datasources[0].CanWrite;
+    bool isDsCheck = (datasources != null && datasources.Count!=0) ? datasources[0].CanWrite:false;
     if (dashboards != null && dashboards.Count > 0)
     {
         myDashboards = dashboards.Where(x => (x.CreatedById == userID && x.Id != 101)).ToList();
         sharedDashboards = dashboards.Where(x => (x.CreatedById != userID && x.Id != 101)).ToList();
-        isDbCheck = myDashboards[0].CanWrite;
+        isDbCheck = (myDashboards != null && myDashboards.Count != 0) ? myDashboards[0].CanWrite:false;
     }
 }
 
@@ -106,9 +107,9 @@
                                                         @if (!sample.IsEdit)
                                                         {
                                                             <i class="far"> </i>
-                                                            <p data-src="@sampleUrl" onclick="ViewDashboard(this)" class="dashboard-text" style="padding-top: 5px;">@sample.Name</p>
+                                                            <p data-src="@sampleUrl" data-itemId="@sample.ItemID" onclick="ViewDashboard(this)" class="dashboard-text" style="padding-top: 5px;">@sample.Name</p>
                                                             @*<i id="share-item" onclick="ShareDashboard('@sample.IsPublic', '@sample.Name', '@sample.ItemID')" style="display:none; vertical-align: super;" class="nav-option fas fa-share-alt dbrd-icon"> </i>*@
-                                                            <i id="refresh-item" onclick="RefreshDashboard('@sample.ItemID')" style="display:none; vertical-align: super;" class="nav-option fas fa-sync-alt dbrd-icon"> </i>
+                                                            @*<i id="refresh-item" onclick="RefreshDashboard('@sample.ItemID')" style="display:none; vertical-align: super;" class="nav-option fas fa-sync-alt dbrd-icon"> </i>*@
                                                             <i id="edit-item" onclick="EditDashboard(this)" data-ng-animate="@sample.Name" style="display:none;vertical-align: super;" class="nav-option dbrd-icon fas fa-pencil-alt"> </i>
                                                             <i id="delete-item" onclick="deleteItem(this, '@sample.Name','@sample.ItemID')" style="display:none; vertical-align: super;" class="nav-option fas fa-trash-alt dbrd-icon"> </i>
                                                         }
@@ -123,7 +124,7 @@
                                                     {
                                                         <i class="far"> </i>
                                                         <p data-src="@sampleUrl" onclick="ViewDashboard(this)" class="dashboard-text" style="padding-top: 5px;">@sample.Name</p>
-                                                        <i id="refresh-item" onclick="RefreshDashboard('@sample.ItemID')" style="display:none; vertical-align: super;" class="nav-option fas fa-sync-alt dbrd-icon"> </i>
+                                                        @*<i id="refresh-item" onclick="RefreshDashboard('@sample.ItemID')" style="display:none; vertical-align: super;" class="nav-option fas fa-sync-alt dbrd-icon"> </i>*@
                                                     }
                                                 </a>
                                             </li>
@@ -181,7 +182,6 @@
     var accessToken = '@accessToken';
     var currentUserId = '@userID';
     var currentUserEmail = '@currentUserEmail';
-
     @*function CreateDbrd() {
         $("#create-new").css("display","none");
         $("#dbrd-name").css("display","flex");
@@ -242,6 +242,6 @@
             }
         });
     }*@
-    
+
 </script>
 
