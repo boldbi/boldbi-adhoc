@@ -1,10 +1,18 @@
 {
   "EmbedSecret": "Embed Secret code",
   "Serverurl": "Enter Server Url",
-  "Email": "User mail id",
+  "UserDetails": [
+    {
+      "Email": "User mail id 1",
+      "DisplayName": "John Doe"
+    },
+    {
+      "Email": "User mail id 2",
+      "DisplayName": "Brito"
+    }
+  ],
   "AdminEmail": "Admin mail id",
   "Environment": "on-premise",
-  "DisplayName": "John Doe",
   "BaseUrl": "https://localhost:44390/",
   "SiteIdentifier": "site/site1",
   "RootUrl": "Enter root url"
