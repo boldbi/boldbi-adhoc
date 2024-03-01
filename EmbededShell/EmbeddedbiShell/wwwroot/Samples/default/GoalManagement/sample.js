@@ -73,7 +73,7 @@ var treeObj = new ejdashboard.navigations.TreeView({
                                     widgetSettings: {
                                         showExport: false,
                                         showMaximize: false,
-                                        showFilter: false,
+                                        showFilter: true,
                                         showMoreOption: false
                                     },
                                     authorizationServer: {
@@ -138,7 +138,7 @@ function tabSelecting(args) {
             widgetSettings: {
                 showExport: false,
                 showMaximize: false,
-                showFilter: false,
+                showFilter: true,
                 showMoreOption: false
             },
             authorizationServer: {
@@ -192,7 +192,7 @@ function redrawDashboard(urlParam) {
         widgetSettings: {
             showExport: false,
             showMaximize: false,
-            showFilter: false,
+            showFilter: true,
             showMoreOption: false
         },
         authorizationServer: {

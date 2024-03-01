@@ -1,19 +1,19 @@
 {
-  "EmbedSecret": "Embed Secret code",
-  "Serverurl": "Enter Server Url",
+  "EmbedSecret": "Your Embed Secret",
+  "Serverurl": "Your BoldBI Server URL", //"http://localhost:54541/bi",
   "UserDetails": [
     {
-      "Email": "User mail id 1",
+      "Email": "User mail ID 1",
       "DisplayName": "John Doe"
     },
     {
-      "Email": "User mail id 2",
+      "Email": "User mail ID 2",
       "DisplayName": "Brito"
     }
   ],
-  "AdminEmail": "Admin mail id",
-  "Environment": "on-premise",
-  "BaseUrl": "https://localhost:44390/",
-  "SiteIdentifier": "site/site1",
-  "RootUrl": "Enter root url"
+  "AdminEmail": "Usermail of the Admin in your Bold BI",
+  "Environment": "Bold BI application environment.",
+  "BaseUrl": "https://localhost:44390",
+  "SiteIdentifier": "For Bold BI Enterprise edition, it should be like site/site1. For Bold BI Cloud, it should be empty string.", //"/site/site1",
+  "RootUrl": "Your BoldBI Server URL" //"http://localhost:54541/bi"
 }

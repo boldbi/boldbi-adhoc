@@ -1,51 +1,105 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SampleCoreApp.Controllers;
-using SampleCoreApp.Models;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.IO;
-using Newtonsoft.Json;
+﻿// <copyright file="Startup.cs" company="Syncfusion Inc">
+// Copyright (c) Syncfusion Inc. All rights reserved.
+// </copyright>
 
 namespace SampleCoreApp
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.HttpsPolicy;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.ResponseCompression;
+    using Microsoft.AspNetCore.Rewrite;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Newtonsoft.Json;
+    using SampleCoreApp.Controllers;
+    using SampleCoreApp.Models;
+
+    /// <summary>
+    /// Starup class.
+    /// </summary>
     public class Startup
     {
-        public static string BasePath { get; set; }        
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Startup"/> class.
+        /// Startup Constructor.
+        /// </summary>
+        /// <param name="configuration">Iconfiguration parameter.</param>
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
+        /// <summary>
+        /// Gets or sets basePath member.
+        /// </summary>
+        public static string BasePath { get; set; }
+
+        /// <summary>
+        /// Gets configuration member.
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services">Service collection parameter.</param>
+        [ObsoleteAttribute("This property is obsolete. Use NewProperty instead.", false)]
+        public static void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
+            services.AddMvc(options => options.EnableEndpointRouting = false);
+            //services.Configure<CookiePolicyOptions>(options =>
+            //{
+            //    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+            //    options.CheckConsentNeeded = context => true;
+            //    options.MinimumSameSitePolicy = SameSiteMode.None;
+            //});
+            services.AddResponseCompression(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.EnableForHttps = true;
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+                {
+                    "image/svg+xml",
+                    "image/png",
+                    "image/jpg"
+                }).ToList();
+                options.Providers.Add<GzipCompressionProvider>();
             });
-
-
+            services.AddAntiforgery(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddHttpContextAccessor();
-
+            services.AddRazorPages().AddRazorRuntimeCompilation();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app">IApplicationBuilder parameter.</param>
+        /// <param name="env">IHostenvironment parameter.</param>
+
+        public static void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.Equals("/embed", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Response.Redirect("/");
+                    return;
+                }
+
+                await next();
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -56,29 +110,42 @@ namespace SampleCoreApp
                 app.UseHsts();
             }
 
+            //app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
             app.Use(async (context, next) =>
             {
+                //Commented to improve performance
+                if (context.Request.Method == "OPTIONS")
+                {
+                    context.Response.StatusCode = 405;
+                    return;
+                }
 
-                context.Response.Headers.Add("Cache-Control", "no-cache");               
+                //context.Response.Headers.Add("Cache-Control", "no-cache");
                 context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+                context.Response.Headers.Add("Cross-Origin-Opener-Policy", "SAMEORIGIN");
                 context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                await next();
+                await next().ConfigureAwait(false);
             });
 
+            app.UseResponseCompression();
             app.UseHttpsRedirection();
+            app.UsePathBase("/");
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseMvc(routes =>
             {
-                routes.MapRoute("dashboardsample", "{categoryName}/{sampleName?}",
-                      defaults: new { controller = "Home", action = "Index" });
-
+                routes.MapRoute("dashboardsample", "{categoryName}/{sampleName?}", defaults: new { controller = "Home", action = "Index" });
                 routes.MapRoute(
                    name: "default",
-                   template: "{controller=Home}/{action=Index}/{id?}");
-
+                   template: "/{controller=Home}/{action=Index}/{id?}");
             });
-            BasePath = env.ContentRootPath;
+
+            if (env == null)
+            {
+                throw new ArgumentNullException(nameof(env));
+            }
+
+            BasePath = env?.ContentRootPath;
         }
     }
 }

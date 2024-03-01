@@ -1,26 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
+﻿// <copyright file="EmbedApiResponse.cs" company="Syncfusion Inc">
+// Copyright (c) Syncfusion Inc. All rights reserved.
+// </copyright>
 
 namespace SampleCoreApp.Models
 {
-    public class UserEmbedDetails
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.Serialization;
+    using Newtonsoft.Json;
+
+    /// <summary>
+    /// EmbedApiResponse Class.
+    /// </summary>
+    public class EmbedApiResponse
     {
-        public string EmbedSecret { get; set; }
+        /// <summary>
+        /// Gets or sets url member.
+        /// </summary>
+        public string Url
+        {
+            get;
+            set;
+        }
 
-        public string DatasourceMode { get; set; }
-
-        public string UserEmail { get; set; }
-
-        public string Credentials { get; set; }
-
-    }
-
-    public class EmbedResponse
-    {
-        public string Url { get; set; }
-
+        /// <summary>
+        /// Gets or sets message member.
+        /// </summary>
         public string Message
         {
             get;

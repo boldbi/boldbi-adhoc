@@ -1,345 +1,119 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿// <copyright file="Sample.cs" company="Syncfusion Inc">
+// Copyright (c) Syncfusion Inc. All rights reserved.
+// </copyright>
 
 namespace SampleCoreApp.Models
 {
-    [Serializable()]
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Serialization;
+
+    /// <summary>
+    /// LifeCycle enum.
+    /// </summary>
+    [Serializable]
     public enum LifeCycle
     {
-        None=0,
-        New=1,
-        Updated=2,
-        Deprecated=3
+        /// <summary>
+        /// None member.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// New member.
+        /// </summary>
+        New = 1,
+
+        /// <summary>
+        /// Updated member.
+        /// </summary>
+        Updated = 2,
+
+        /// <summary>
+        /// Deprecated member.
+        /// </summary>
+        Deprecated = 3,
     }
 
-    [Serializable()]
+    /// <summary>
+    /// Sample Class.
+    /// </summary>
+    [Serializable]
     public class Sample
     {
-        [XmlElement("Id")]
         /// <summary>
-        /// Gets or Sets the Unique ID of the sample
+        /// Gets or Sets the Unique ID of the sample.
         /// </summary>
+        [XmlElement("Id")]
         public int Id { get; set; }
 
-        [XmlElement("Name")]
         /// <summary>
-        /// Gets or Sets the Name for the sample
+        /// Gets or Sets the Name for the sample.
         /// </summary>
+        [XmlElement("Name")]
         public string Name { get; set; }
 
-        [XmlElement("Title")]
         /// <summary>
-        /// Gets or Sets the Name for the sample
+        /// Gets or Sets the Name for the sample.
         /// </summary>
+        [XmlElement("Title")]
         public string Title { get; set; }
 
-        [XmlElement("Description")]
         /// <summary>
-        /// Gets or Sets the Description for the sample
+        /// Gets or Sets the Description for the sample.
         /// </summary>
+        [XmlElement("Description")]
         public string Description { get; set; }
 
-        [XmlElement("CategoryId")]
         /// <summary>
-        /// Gets or Sets the CategoryId of the sample
+        /// Gets or Sets the CategoryId of the sample.
         /// </summary>
+        [XmlElement("CategoryId")]
         public int CategoryId { get; set; }
 
-        [XmlElement("Path")]
         /// <summary>
-        /// Gets or Sets the File path of the sample
+        /// Gets or Sets the File path of the sample.
         /// </summary>
+        [XmlElement("Path")]
         public string Path { get; set; }
 
+        /// <summary>
+        /// Gets or Sets the File path of the sample.
+        /// </summary>
         [XmlElement("DashboardPath")]
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
-        public string DashboardPath { get; set; }
-
-        public int CreatedById
-        {
-            get;
-            set;
-        }
-        public bool IsPublic
-        {
-            get;
-            set;
-        }
-        public string ItemID
-        {
-            get;
-            set;
-        }
-        public bool CanRead
-        {
-            get;
-            set;
-        }
-        public bool CanWrite
-        {
-            get;
-            set;
-        }
-        public bool CanDelete
-        {
-            get;
-            set;
-        }
-
-    }
-
-    [Serializable()]
-    public class DataSource
-    {
-        [XmlElement("Id")]
-        /// <summary>
-        /// Gets or Sets the Unique ID of the sample
-        /// </summary>
-        public int Id { get; set; }
-
-        [XmlElement("Name")]
-        /// <summary>
-        /// Gets or Sets the Name for the sample
-        /// </summary>
-        public string Name { get; set; }
-
-        [XmlElement("Title")]
-        /// <summary>
-        /// Gets or Sets the Name for the sample
-        /// </summary>
-        public string Title { get; set; }
-
-        [XmlElement("Description")]
-        /// <summary>
-        /// Gets or Sets the Description for the sample
-        /// </summary>
-        public string Description { get; set; }
-
-        [XmlElement("CategoryId")]
-        /// <summary>
-        /// Gets or Sets the CategoryId of the sample
-        /// </summary>
-        public int CategoryId { get; set; }
-
-        [XmlElement("Path")]
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
-        public string Path { get; set; }
-
-        [XmlElement("DataSourcePath")]
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
-        public string DataSourcePath { get; set; }
-
-        public int CreatedById
-        {
-            get;
-            set;
-        }
-        public bool IsPublic
-        {
-            get;
-            set;
-        }
-        public string ItemID
-        {
-            get;
-            set;
-        }
-        public bool CanRead
-        {
-            get;
-            set;
-        }
-        public bool CanWrite
-        {
-            get;
-            set;
-        }
-        public bool CanDelete
-        {
-            get;
-            set;
-        }
-
-    }
-
-    [Serializable()]
-    public class Category
-    {
-        [XmlElement("Id")]
-        /// <summary>
-        /// Gets or Sets the Unique ID of the Category
-        /// </summary>
-        public int Id { get; set; }
-
-        [XmlElement("Name")]
-        /// <summary>
-        /// Gets or Sets the Name of the Category
-        /// </summary>
-        public string Name { get; set; }
-
-        [XmlElement("Description")]
-        /// <summary>
-        /// Gets or Sets the Description for the Category
-        /// </summary>
-        public string Description { get; set; }
-
-        [XmlElement("ParentId")]
-        /// <summary>
-        /// Gets or Sets the Parent Id of the Category
-        /// </summary>
-        public int? ParentId { get; set; }
-
-        [XmlElement("SpiteClass")]
-        /// <summary>
-        /// Gets or Sets Category sprite class.
-        /// </summary>
-        public string SpiteClass { get; set; }
-
-        [XmlElement("Path")]
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
-        public string Path { get; set; }
-
-        [XmlElement("DashboardPath")]
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
-        public string DashboardPath { get; set; }
-
-        [XmlElement("Title")]
-        /// <summary>
-        /// Gets or Sets the Name for the sample
-        /// </summary>
-        public string Title { get; set; }
-
-        [XmlElement("AsTab")]
-        /// <summary>
-        /// Show the child element has the tabs
-        /// </summary>
-        public bool AsTab { get; set; }
-    }
-   
-
-    [Serializable()]
-    [XmlRoot("SamplesModel")] 
-    public class SamplesDetails
-    {
-        public List<Sample> Samples { get; set; }     
-        public List<Category> Categories { get; set; }
-        public SamplesDetails()
-        {
-            Samples = new List<Sample>();
-            Categories = new List<Category>();
-        }
-
-    }
-   
-
-    public class SamplesSchemaViewModel
-    {
-        /// <summary>
-        /// Gets or Sets the Unique ID of the Category
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the Name of the Category
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the Title of the Category
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
-        public string Path { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the File path of the sample
-        /// </summary>
         public string DashboardPath { get; set; }
 
         /// <summary>
-        /// Gets or Sets the Url of the sample
+        /// Gets or sets createdById member.
         /// </summary>
-        public string Url { get; set; }
+        public int CreatedById { get; set; }
 
         /// <summary>
-        /// Gets or Sets the Haschild prop.
+        /// Gets or sets a value indicating whether isPublic member.
         /// </summary>
-        public bool HasChild { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Category sprite class.
-        /// </summary>
-        public string SpiteClass { get; set; }
-
-        public bool AsTab { get; set; }
-
-        /// <summary>
-        /// Gets or Sets IsCategory prop.
-        /// </summary>
-        public bool IsCategory { get; set; }
-
-        public int CreatedById
-        {
-            get;
-            set;
-        }
-
-        public bool IsEdit { get; set; }
-
         public bool IsPublic { get; set; }
 
-        public bool CanRead { get; set; }
-        public bool CanWrite { get; set; }
-        public bool CanDelete { get; set; }
-
+        /// <summary>
+        /// Gets or sets itemID member.
+        /// </summary>
         public string ItemID { get; set; }
 
         /// <summary>
-        /// Gets or Sets the child collection.
+        /// Gets or sets a value indicating whether canRead member.
         /// </summary>
-        public List<SamplesSchemaViewModel> Samples { get; set; }
-        public List<SamplesSchemaViewModel> DataSources { get; set; }
+        public bool CanRead { get; set; }
 
-        public SamplesSchemaViewModel Clone ()
-        {
-            SamplesSchemaViewModel obj = new SamplesSchemaViewModel()
-            {
-                HasChild = HasChild,
-                Id = Id,
-                IsCategory = IsCategory,
-                Name = Name,
-                Path = Path,
-                SpiteClass = SpiteClass,
-                CreatedById = CreatedById,
-                Url = Url
-            };
-            if (Samples != null)
-            {
-                obj.Samples = new List<SamplesSchemaViewModel>();
-                foreach (var item in Samples)
-                {
-                    obj.Samples.Add(item.Clone());
-                }
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether canWrite member.
+        /// </summary>
+        public bool CanWrite { get; set; }
 
-            return obj;
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether canDelete member.
+        /// </summary>
+        public bool CanDelete { get; set; }
     }
 }

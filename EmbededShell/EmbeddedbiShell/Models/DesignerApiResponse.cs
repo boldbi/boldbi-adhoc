@@ -1,14 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
+﻿// <copyright file="DesignerApiResponse.cs" company="Syncfusion Inc">
+// Copyright (c) Syncfusion Inc. All rights reserved.
+// </copyright>
 
 namespace SampleCoreApp.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.Serialization;
+    using Newtonsoft.Json;
+
+    /// <summary>
+    /// DesignerApiResponse class.
+    /// </summary>
     public class DesignerApiResponse
     {
         /// <summary>
-        /// Returns the status of the API.
+        /// Gets or sets a value indicating whether returns the status of the API.
         /// </summary>
         [DataMember]
         public bool ApiStatus
@@ -18,17 +25,17 @@ namespace SampleCoreApp.Models
         }
 
         /// <summary>
-        /// Returns data from the API.
+        /// Gets or sets returns data from the API.
         /// </summary>
         [DataMember]
-        public Data Data
+        public DataClass Data
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Returns status of the API request.
+        /// Gets or sets a value indicating whether returns status of the API request.
         /// </summary>
         [DataMember]
         public bool Status
@@ -38,7 +45,7 @@ namespace SampleCoreApp.Models
         }
 
         /// <summary>
-        /// Returns the status message from the API.
+        /// Gets or sets returns the status message from the API.
         /// </summary>
         [DataMember]
         public string StatusMessage
@@ -48,26 +55,13 @@ namespace SampleCoreApp.Models
         }
 
         /// <summary>
-        /// Returns the message from the API.
+        /// Gets or sets returns the message from the API.
         /// </summary>
         [DataMember]
         public string Message
         {
             get;
             set;
-        }
-    }
-
-    public class Data
-    {
-        public string Type
-        {
-            get; set;
-        }
-
-        public string ConnectionString
-        {
-            get; set;
         }
     }
 }

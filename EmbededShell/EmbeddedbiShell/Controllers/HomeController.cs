@@ -1,170 +1,227 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SampleCoreApp.Models;
+﻿// <copyright file="HomeController.cs" company="Syncfusion Inc">
+// Copyright (c) Syncfusion Inc. All rights reserved.
+// </copyright>
 
 namespace SampleCoreApp.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using SampleCoreApp.Models;
+
+    /// <summary>
+    /// HomeController Inheritance Class.
+    /// </summary>
     public class HomeController : Controller
     {
-        private readonly GlobalAppSettings _globalAppSettings;
-        private readonly TenantModel _tenantModel = new TenantModel();
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        /// <summary>
+        /// GlobalAppSettings member.
+        /// </summary>
+        private readonly GlobalAppSettings globalAppSettings;
 
+        /// <summary>
+        /// TenantModel member.
+        /// </summary>
+        private readonly TenantModel tenantModel = new TenantModel();
+
+        /// <summary>
+        /// HttpContextAccessor member.
+        /// </summary>
+        private readonly IHttpContextAccessor httpContextAccessor;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HomeController"/> class.
+        /// HomeController constructor.
+        /// </summary>
+        /// <param name="contextAccessor">IHttpContextAccessor parameter.</param>
         public HomeController(IHttpContextAccessor contextAccessor)
         {
-            _httpContextAccessor = contextAccessor;
-            _globalAppSettings = _tenantModel.GetTenantConfig(contextAccessor.HttpContext.Request.Host.Value);
+            this.httpContextAccessor = contextAccessor;
+            this.globalAppSettings = this.tenantModel.GetTenantConfig();
         }
 
+        /// <summary>
+        /// The method will trigger Index View.
+        /// </summary>
+        /// <param name="categoryName">CategoryName.</param>
+        /// <param name="sampleName">SampleName.</param>
+        /// <param name="tabid">TabId.</param>
+        /// <param name="email">UserEmail.</param>
+        /// <param name="edit">IsEdit.</param>
+        /// <param name="id">DashboardId.</param>
+        /// <returns>Return the Index View.</returns>
         public IActionResult Index(string categoryName, string sampleName, int tabid = 0, string email = null, bool edit = false, string id = null)
         {
             var noResourceFound = false;
-            var updatedSettings = _globalAppSettings;
+            var updatedSettings = this.globalAppSettings;
             ServerUser userDetails = null;
             SamplesTreeViewModel model = null;
-             email = Request.Cookies["useremail"];
-            _globalAppSettings.ChangedUserEmail = (string.IsNullOrEmpty(email))?_globalAppSettings.EmbedDetails.UserDetails[0].Email :email;
-             ViewBag.UserId = 1;
+            email = this.Request.Cookies["useremail"];
+            this.globalAppSettings.ChangedUserEmail = string.IsNullOrEmpty(email) ? this.globalAppSettings.EmbedDetails.UserDetails[0].Email : email;
+            this.ViewBag.UserId = 1;
             if (email != null)
             {
-                var adminToken = new DashboardModel().GetToken(_globalAppSettings.EmbedDetails.AdminEmail);
+                var adminToken = new DashboardModel().GetToken(this.globalAppSettings.EmbedDetails.AdminEmail);
                 userDetails = new UserManagement().IsUserExist(email, adminToken.AccessToken);
                 if (userDetails != null)
                 {
-                    updatedSettings = _tenantModel.GetUpdateSchema(_globalAppSettings, userDetails.Email);
+                    updatedSettings = this.tenantModel.GetUpdateSchema(this.globalAppSettings, userDetails.Email);
                     updatedSettings.UserDetails = userDetails;
-                    ViewBag.UserDisplayName = new DashboardModel().GetDisplayName(userDetails.Email);
-                    ViewBag.Token = new DashboardModel().GetToken(email).AccessToken;
-                    ViewBag.UserId = userDetails.UserId;
+                    this.ViewBag.UserDisplayName = new DashboardModel().GetDisplayName(userDetails.Email);
+                    this.ViewBag.Token = new DashboardModel().GetToken(email).AccessToken;
+                    this.ViewBag.UserId = userDetails.UserId;
                 }
                 else
                 {
-                    return View("Error");
+                    return this.View("Error");
                 }
             }
             else
             {
-                updatedSettings = _tenantModel.GetUpdateSchema(_globalAppSettings);
+                updatedSettings = this.tenantModel.GetUpdateSchema(this.globalAppSettings);
                 updatedSettings.UserDetails = null;
                 var adminToken = new DashboardModel().GetToken();
-                userDetails = new UserManagement().IsUserExist(_globalAppSettings.EmbedDetails.UserDetails[0].Email, adminToken.AccessToken);
-                ViewBag.UserId = userDetails.UserId;
+                userDetails = new UserManagement().IsUserExist(this.globalAppSettings.EmbedDetails.UserDetails[0].Email, adminToken.AccessToken);
+                this.ViewBag.UserId = userDetails.UserId;
             }
-
 
             if (updatedSettings.SamplesCollection != null && updatedSettings.SamplesCollection.Count > 0)
             {
                 if (edit && sampleName != null)
                 {
-                    var item = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower() == sampleName.ToLower());
+                    var item = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower(CultureInfo.CurrentCulture) == sampleName.ToLower(CultureInfo.CurrentCulture));
                     if (item != null)
-                    item.IsEdit = edit;
+                    {
+                        item.IsEdit = edit;
+                    }
+
                     if (categoryName != null)
                     {
-                        var menuItem = updatedSettings.SamplesSchemaCollection.FirstOrDefault(i => i.Name.ToLower() == categoryName.ToLower());
+                        var menuItem = updatedSettings.SamplesSchemaCollection.FirstOrDefault(i => i.Name.ToLower(CultureInfo.CurrentCulture) == categoryName.ToLower(CultureInfo.CurrentCulture));
                         if (menuItem != null && menuItem.Samples != null && menuItem.Samples.Count > 0)
                         {
-                            var sample = menuItem.Samples.FirstOrDefault(j => j.Name.ToLower() == sampleName.ToLower());
+                            var sample = menuItem.Samples.FirstOrDefault(j => j.Name.ToLower(CultureInfo.CurrentCulture) == sampleName.ToLower(CultureInfo.CurrentCulture));
                             sample.IsEdit = edit;
                         }
                     }
                 }
+
                 if (categoryName == null)
                 {
-                    var _model = updatedSettings.SamplesCollection[0];
-                    if (_model.HasChild && !_model.AsTab)
+                    var sampleModel = updatedSettings.SamplesCollection[0];
+                    if (sampleModel.HasChild && !sampleModel.AsTab)
                     {
                         var userID = userDetails == null ? 1 : userDetails.UserId;
-                        model = updatedSettings.SamplesCollection.FirstOrDefault(i => (i.ParentId == _model.Id && i.Id != 101 && i.CreatedById == userID));
-                        ViewBag.ParentName = model != null ? model.ParentName : "";
-                        ViewBag.Name = model != null ? model.Name : "";
+                        model = updatedSettings.SamplesCollection.FirstOrDefault(i => (i.ParentId == sampleModel.Id && i.Id != 101 && i.CreatedById == userID));
+                        this.ViewBag.ParentName = model != null ? model.ParentName : string.Empty;
+                        this.ViewBag.Name = model != null ? model.Name : string.Empty;
                         noResourceFound = model == null;
                     }
                     else
                     {
-                        model = _model;
-                        ViewBag.Name = model.Name;
+                        model = sampleModel;
+                        this.ViewBag.Name = model.Name;
                         noResourceFound = true;
                     }
                 }
                 else if (sampleName == null)
                 {
-                    model = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower() == categoryName.ToLower());
+                    model = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower(CultureInfo.CurrentCulture) == categoryName.ToLower(CultureInfo.CurrentCulture));
                     if (model != null)
                     {
-                        ViewBag.Name = model.Name;
+                        this.ViewBag.Name = model.Name;
                         noResourceFound = !model.HasChild;
                     }
                 }
                 else
                 {
-                    sampleName = sampleName.Contains("&") ? sampleName.Substring(0, sampleName.IndexOf("&")) : sampleName;
-                    model = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower() == sampleName.ToLower() && i.ParentName!=null && i.ParentName.ToLower() == categoryName.ToLower());
+                    sampleName = sampleName.Contains("&", StringComparison.Ordinal) ? sampleName.Substring(0, sampleName.IndexOf("&", StringComparison.Ordinal)) : sampleName;
+                    model = updatedSettings.SamplesCollection.FirstOrDefault(i => i.Name.ToLower(CultureInfo.CurrentCulture) == sampleName.ToLower(CultureInfo.CurrentCulture) && i.ParentName != null && i.ParentName.ToLower(CultureInfo.CurrentCulture) == categoryName.ToLower(CultureInfo.CurrentCulture));
                     if (model != null)
                     {
-                        ViewBag.ParentName = model.ParentName;
-                        ViewBag.Name = model.Name;
+                        this.ViewBag.ParentName = model.ParentName;
+                        this.ViewBag.Name = model.Name;
                     }
-                    ViewBag.IsEdit = edit;
+
+                    this.ViewBag.IsEdit = edit;
                     if (edit)
                     {
                         var categories = new DashboardModel().GetCategories(email);
-                        ViewBag.Category = categories.Where(x => x.Name == model.DashboardPath.Split('/')[1]).FirstOrDefault();
+                        this.ViewBag.Category = categories.Where(x => x.Name == model.DashboardPath.Split('/')[1]).FirstOrDefault();
                     }
                 }
             }
-            ViewBag.DraftId = string.IsNullOrEmpty(id) ? "" : id;
-            ViewBag.GlobalAppSettings = updatedSettings;
-            ViewBag.NoResourceFound = noResourceFound;
+
+            this.ViewBag.DraftId = string.IsNullOrEmpty(id) ? string.Empty : id;
+            this.ViewBag.GlobalAppSettings = updatedSettings;
+            this.ViewBag.NoResourceFound = noResourceFound;
             if (model != null)
             {
-                return View(model);
+                return this.View(model);
             }
-            return View();
+
+            return this.View();
         }
 
-
+        /// <summary>
+        /// The method will initiate the process of obtaining embed details.
+        /// </summary>
+        /// <param name="embedQuerString">EmbedQueryString.</param>
+        /// <returns>Embed details string value is returned.</returns>
         [HttpPost]
         [Route("GetDetails")]
         public string GetDetails([FromBody] object embedQuerString)
         {
-            var userEmail = Request.Cookies["useremail"];
-            var embedClass = JsonConvert.DeserializeObject<EmbedClass>(embedQuerString.ToString());
-            userEmail = (string.IsNullOrEmpty(userEmail)) ? _globalAppSettings.EmbedDetails.AdminEmail: _globalAppSettings.ChangedUserEmail;
-            var embedQuery = embedClass.embedQuerString;
+            var userEmail = this.Request.Cookies["useremail"];
+            var embedClass = JsonConvert.DeserializeObject<EmbedClass>(embedQuerString?.ToString());
+            userEmail = string.IsNullOrEmpty(userEmail) ? this.globalAppSettings.EmbedDetails.AdminEmail : userEmail;
+            var embedQuery = embedClass.EmbedQuerString;
             embedQuery += "&embed_user_email=" + userEmail;
-            var embedDetailsUrl = "/embed/authorize?" + embedQuery.ToLower() + "&embed_signature=" + new EmbedAction(_globalAppSettings).GetSignatureUrl(embedQuery.ToLower());
+
+            // To set embed_server_timestamp to overcome the EmbedCodeValidation failing while different timezone using at client application.
+            double timeStamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            embedQuery += "&embed_server_timestamp=" + timeStamp;
+            var embedDetailsUrl = "/embed/authorize?" + embedQuery.ToLower(CultureInfo.CurrentCulture) + "&embed_signature=" + new EmbedAction(this.globalAppSettings).GetSignatureUrl(embedQuery.ToLower(CultureInfo.CurrentCulture));
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(embedClass.dashboardServerApiUrl);
+                client.BaseAddress = new Uri(embedClass.DashboardServerApiUrl);
                 client.DefaultRequestHeaders.Accept.Clear();
-
-                var result = client.GetAsync(embedClass.dashboardServerApiUrl + embedDetailsUrl).Result;
+                var result = client.GetAsync(embedClass.DashboardServerApiUrl + embedDetailsUrl).Result;
                 string resultContent = result.Content.ReadAsStringAsync().Result;
                 return resultContent;
             }
         }
 
+        /// <summary>
+        /// The method will cause changes to be made to the site index.
+        /// </summary>
+        /// <param name="email">UserEmail.</param>
         [HttpPost]
         [Route("change-index")]
         public void ChangeSiteIndex(string email)
         {
-            _tenantModel.CurrentUserEmail = email;
+            this.tenantModel.CurrentUserEmail = email;
         }
 
+        /// <summary>
+        /// The method will cause the item to be deleted.
+        /// </summary>
+        /// <param name="itemId">ItemId.</param>
+        /// <param name="userEmail">UserEmail.</param>
+        /// <returns>Return the string value of status.</returns>
         [HttpPost]
         [Route("delete-item")]
         public string DeleteItem(string itemId, string userEmail)
@@ -173,22 +230,55 @@ namespace SampleCoreApp.Controllers
             return response.StatusCode.ToString();
         }
 
+        /// <summary>
+        /// The method will activate database permission.
+        /// </summary>
+        /// <param name="chkValue">IsCheckValue.</param>
+        /// <param name="userId">UserID.</param>
+        /// <param name="userEmail">UserEmail.</param>
+        /// <returns>Return the string value of status.</returns>
         [HttpPost]
         [Route("userdb-permission")]
         public string DBPermission(bool chkValue, string userId, string userEmail)
         {
-            var response = new DashboardModel().UserPermissionDashboard(chkValue, userId, userEmail);
-            return response.StatusCode.ToString();
+            var response = new DashboardModel().UserPermissionDashboard(chkValue, userEmail);
+            if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return response.StatusCode.ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
+        /// <summary>
+        /// The method will activate datasource permission.
+        /// </summary>
+        /// <param name="chkValue">IsCheckValue.</param>
+        /// <param name="userId">UserID.</param>
+        /// <param name="userEmail">UserEmail.</param>
+        /// <returns>Return the string value of status.</returns>
         [HttpPost]
         [Route("userds-permission")]
         public string DSPermission(bool chkValue, string userId, string userEmail)
         {
-            var response = new DashboardModel().UserPermissionDataSource(chkValue, userId, userEmail);
-            return response.StatusCode.ToString();
+            var response = new DashboardModel().UserPermissionDataSource(chkValue, userEmail);
+            if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return response.StatusCode.ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
+        /// <summary>
+        /// The method will trigger a refresh of the dashboard.
+        /// </summary>
+        /// <param name="itemId">DashboardId.</param>
+        /// <returns>Return the string value of status.</returns>
         [HttpPost]
         [Route("refresh-item")]
         public string RefreshItem(string itemId)
@@ -197,21 +287,26 @@ namespace SampleCoreApp.Controllers
             return response.Status.ToString();
         }
 
-
+        /// <summary>
+        /// The method will trigger getting the embed URL.
+        /// </summary>
+        /// <param name="userEmbeddetails">User embed details.</param>
+        /// <returns>Return the embed URL.</returns>
         [HttpPost]
         [Route("api/embed/geturl")]
-        public EmbedResponse GetUrl(UserEmbedDetails userEmbeddetails)
+        [ObsoleteAttribute("This property is obsolete. Use NewProperty instead.", false)]
+        public EmbedApiResponse GetUrl(UserEmbedDetails userEmbeddetails)
         {
-            var response = new EmbedResponse();
-            if (userEmbeddetails.EmbedSecret == _globalAppSettings.EmbedDetails.EmbedSecret)
+            var response = new EmbedApiResponse();
+            if (userEmbeddetails?.EmbedSecret == this.globalAppSettings.EmbedDetails.EmbedSecret)
             {
                 var adminToken = new DashboardModel().GetToken();
                 ServerUser userDetails = new UserManagement().VadidateUser(userEmbeddetails.UserEmail, userEmbeddetails);
                 var credentials = userEmbeddetails.Credentials;
-                string timeStamp = DateTime.Now.ToString();
+                string timeStamp = FormattableString.Invariant($"{DateTime.Now}");
                 var secretToken = "DatasourceMode=" + userEmbeddetails.DatasourceMode + "&Credentials=" + credentials + "&Timestamp=" + timeStamp;
-                var encryptedText = DoEncryption(secretToken);
-                response.Url = _globalAppSettings.EmbedDetails.BaseUrl + "?useremail=" + userEmbeddetails.UserEmail + "&token=" + encryptedText;
+                var encryptedText = this.DoEncryption(secretToken);
+                response.Url = this.globalAppSettings.EmbedDetails.BaseUrl + "?useremail=" + userEmbeddetails.UserEmail + "&token=" + encryptedText;
                 response.Message = "Success";
             }
             else
@@ -219,18 +314,32 @@ namespace SampleCoreApp.Controllers
                 response.Message = "Embed secret validation failed";
                 response.Url = string.Empty;
             }
+
             return response;
         }
 
+        /// <summary>
+        /// The method will triggers for sharing the dashboard.
+        /// </summary>
+        /// <param name="itemId">DashboardId.</param>
+        /// <param name="isPublic">IsPublic.</param>
+        /// <param name="itemName">DashboardName.</param>
+        /// <param name="userEmail">UserEmail.</param>
+        /// <returns>Return the string value of status.</returns>
         [HttpPost]
         [Route("share-item")]
-        public string ShareItem(string itemId, bool IsPublic, string itemName, string userEmail)
+        public string ShareItem(string itemId, bool isPublic, string itemName, string userEmail)
         {
-            DesignerApiResponse response = new DashboardModel().MakeItemPublic(itemId, "Dashboard", !IsPublic, userEmail);
+            DesignerApiResponse response = new DashboardModel().MakeItemPublic(itemId, !isPublic, userEmail);
             return response.Status.ToString();
         }
 
-
+        /// <summary>
+        /// The method will cause the dashboard to be encrypted.
+        /// </summary>
+        /// <param name="encryptedText">EncryptedText.</param>
+        /// <returns>Return the string value of status.</returns>
+        [ObsoleteAttribute("This property is obsolete. Use NewProperty instead.", false)]
         public string DoEncryption(string encryptedText)
         {
             if (string.IsNullOrWhiteSpace(encryptedText))
@@ -241,7 +350,7 @@ namespace SampleCoreApp.Controllers
             var plainTextBytes = Encoding.UTF8.GetBytes(encryptedText);
             var symmetricKey = new AesCryptoServiceProvider { Mode = CipherMode.CBC };
 
-            var encryptor = symmetricKey.CreateEncryptor(GetKey(), GetVectorByte());
+            var encryptor = symmetricKey.CreateEncryptor(this.GetKey(), this.GetVectorByte());
             var memoryStream = new MemoryStream();
             var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
 
@@ -255,6 +364,12 @@ namespace SampleCoreApp.Controllers
             return Convert.ToBase64String(cipherTextBytes);
         }
 
+        /// <summary>
+        /// The method will cause the dashboard to be decryted.
+        /// </summary>
+        /// <param name="encryptedToken">EncryptedToken.</param>
+        /// <returns>Return the string value of status.</returns>
+        [ObsoleteAttribute("This property is obsolete. Use NewProperty instead.", false)]
         public string Decrypt(string encryptedToken)
         {
             try
@@ -266,7 +381,7 @@ namespace SampleCoreApp.Controllers
 
                 var cipherTextBytes = Convert.FromBase64String(encryptedToken);
                 var symmetricKey = new AesCryptoServiceProvider { Mode = CipherMode.CBC };
-                var decryptor = symmetricKey.CreateDecryptor(GetKey(), GetVectorByte());
+                var decryptor = symmetricKey.CreateDecryptor(this.GetKey(), this.GetVectorByte());
                 var memoryStream = new MemoryStream(cipherTextBytes);
                 var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
                 var plainTextBytes = new byte[cipherTextBytes.Length];
@@ -277,21 +392,30 @@ namespace SampleCoreApp.Controllers
 
                 return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return "";
+                return string.Empty;
+                throw;
             }
         }
 
+        /// <summary>
+        /// The method will triggers for getting KeyValue.
+        /// </summary>
+        /// <returns>Return the key value.</returns>
         private byte[] GetKey()
         {
-            string key = _globalAppSettings.EmbedDetails.EmbedSecret + "#";
+            string key = this.globalAppSettings.EmbedDetails.EmbedSecret + "#";
             return ASCIIEncoding.UTF8.GetBytes(key);
         }
 
+        /// <summary>
+        /// The method will triggers for getting vector byte.
+        /// </summary>
+        /// <returns>Return the vector byte.</returns>
         private byte[] GetVectorByte()
         {
-            string text = _globalAppSettings.EmbedDetails.EmbedSecret + "#";
+            string text = this.globalAppSettings.EmbedDetails.EmbedSecret + "#";
             return ASCIIEncoding.UTF8.GetBytes(text.Substring(0, 16));
         }
     }

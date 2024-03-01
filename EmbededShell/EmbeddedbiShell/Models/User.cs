@@ -1,69 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Xml.Serialization;
+﻿// <copyright file="User.cs" company="Syncfusion Inc">
+// Copyright (c) Syncfusion Inc. All rights reserved.
+// </copyright>
 
 namespace SampleCoreApp.Models
 {
-    public class ServerUser
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.Serialization;
+    using Newtonsoft.Json;
+
+    /// <summary>
+    /// User class.
+    /// </summary>
+    public class User
     {
-        public string ContactNumber
-        {
-            get;
-            set;
-        }
-
-        public string DisplayName
-        {
-            get;
-            set;
-        }
-
+        /// <summary>
+        /// Gets or sets email member.
+        /// </summary>
         public string Email
         {
             get;
             set;
         }
 
-        public string FirstName
-        {
-            get;
-            set;
-        }
-
-
-        public bool IsActive
-        {
-            get;
-            set;
-        }
-
-        public bool IsAzureAdUser
-        {
-            get;
-            set;
-        }
-
-        public string Lastname
-        {
-            get;
-            set;
-        }
-
-        public int UserId
-        {
-            get;
-            set;
-        }
-
-        public int UserStatus
-        {
-            get;
-            set;
-        }
-
-        public string Username
+        /// <summary>
+        /// Gets or sets displayName member.
+        /// </summary>
+        public string DisplayName
         {
             get;
             set;

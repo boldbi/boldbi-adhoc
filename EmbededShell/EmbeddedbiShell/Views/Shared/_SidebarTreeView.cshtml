@@ -2,7 +2,7 @@
 @{ 
     var globalAppSettings = ViewBag.GlobalAppSettings as GlobalAppSettings;
     var index = 0;
-    var dashboardServerApiUrl = globalAppSettings.EmbedDetails.RootUrl + "/api/" + globalAppSettings.EmbedDetails.SiteIdentifier;
+    var dashboardServerApiUrl = globalAppSettings.EmbedDetails.RootUrl + "/api";
     var accessToken = globalAppSettings.UserToken != null ? globalAppSettings.UserToken.AccessToken : "";
     var currentUserEmail = globalAppSettings.UserToken != null ? globalAppSettings.UserToken.Email : "";
     var email = Model != null && Model.UserDetails != null && !string.IsNullOrWhiteSpace(Model.UserDetails.Email) ? Model.UserDetails.Email : null;
@@ -31,7 +31,7 @@
             {
                 var hasChild = category.IsCategory && category.HasChild && !category.AsTab;
                 var hasTreeview = hasChild ? "has-treeview" : string.Empty;
-                var isActive = hasChild ? ViewBag.ParentName?.ToLower() == category.Name.ToLower() ? "active" : ViewBag.Name.ToLower() == category.Name.ToLower() ? "active" : "" : "";
+                var isActive = hasChild ? ViewBag.ParentName?.ToLower() == category.Name.ToLower() ? "active" : ViewBag.Name?.ToLower() == category.Name.ToLower() ? "active" : "" : "";
                 var hasMenuOpen = (hasChild) ? "menu-open" : "";
                 var url = hasChild ? "#" : @Url.Action("Index", "Home", new { categoryName = @category.Name.ToLower() });
                 index++;
@@ -98,8 +98,8 @@
                                     {
                                         @if (sample.Id != 101)
                                         {
-                                            var isChildActive = ViewBag.Name.ToLower() == sample.Name.ToLower() ? "active" : "";
-                                            var sampleUrl = @Url.Action("Index", "Home", new { categoryName = @category.Name.ToLower(), sampleName = @sample.Name.ToLower(), email = @email });
+                                            var isChildActive = ViewBag.Name?.ToLower() == sample.Name.ToLower() ? "active" : "";
+                                            var sampleUrl = @Url.Action("Index", "Home", new { categoryName = @category.Name.ToLower(), sampleName = @sample.Name.ToLower()});
                                             <li class="nav-item">
                                                 <a class="nav-link sample @isChildActive" style="font-size:14px; cursor:pointer;">
                                                     @if (sample.CanWrite)

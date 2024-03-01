@@ -1,6 +1,6 @@
 ﻿var dashboardName = "";
 var dashboardId = "";
-var dashboard_ItemId="";
+var dashboard_ItemId = "";
 var isEmptyOrWhiteSpace = function (str) {
 	return typeof (str) === "undefined" || str === null || str.match(/^ *$/) !== null;
 };
@@ -20,6 +20,7 @@ var getParams = function (url, paramName) {
 };
 
 function embedSample() {
+    setCookie("useremail", currentUserEmail);
     if (catagoryId === "2") {
         var dataValue = "";
         var apiRequest = new Object();
@@ -64,7 +65,7 @@ function embedSample() {
         }
         else {
             var boldbiEmbedInstance = BoldBI.create({
-                serverUrl: serverUrl,
+                serverUrl: serverUrl + siteIdentifier,
                 dashboardPath: dashboardPath,
                 dashboardId: id,
                 datasourceName: datasourceName,
@@ -82,7 +83,7 @@ function embedSample() {
                 widgetSettings: {
                     showExport: false,
                     showMaximize: false,
-                    showFilter: false,
+                    showFilter: true,
                     showMoreOption: false
                 },
                 authorizationServer: {
@@ -129,7 +130,7 @@ function clientAuthorizionComplete(arg) {
 function EditDashboard(args) {
     dashboardName = args.parentElement.text.trim();
     var userEmail = getParams(document.location.href, "email");
-    document.location.href = baseUrl + "/dashboard/" + dashboardName + (isEmptyOrWhiteSpace(userEmail) ? "?edit=true" : "?email=" + userEmail + "&edit=true");
+    document.location.href = baseUrl + "/dashboard/" + dashboardName + "?edit=true";
 }
 
 $("#save-item").on("click", function () {
@@ -145,7 +146,7 @@ $("#save-item").on("click", function () {
         'name': name,
         'description': '',
         'id': dbrdInstance.model.itemId,
-        'eventType': DashboardDesignerEvent.Save
+        // 'eventType': DashboardDesignerEvent.Save /*The eventType member is not necessary for save the dashboard, it is just to show the event name.*/
     };
 
     dbrdInstance.saveDashboardToServer(info);
@@ -154,43 +155,43 @@ $("#save-item").on("click", function () {
 $("#ewdit-item").on("click", function (event) {
     event.preventDefault();
     var userEmail = getParams(document.location.href, "email");
-    document.location.href = baseUrl + "/dashboard/" + dashboardName + (isEmptyOrWhiteSpace(userEmail) ? "?edit=true" : "?email=" + userEmail + "&edit=true");
+    document.location.href = baseUrl + "/dashboard/" + dashboardName + "?edit=true";
 });
 
 $("#create-nav").on("click", function () {
     var userEmail = getParams(document.location.href, "email");
-    document.location.href = designerUrl + (isEmptyOrWhiteSpace(userEmail) ? "" : "?email=" + userEmail);
+    document.location.href = designerUrl;
 });
 
 $("#edit-nav-button").on("click", function () {
     var userEmail = getParams(document.location.href, "email");
-    document.location.href = baseUrl + "/dashboard/" + dashboardName + (isEmptyOrWhiteSpace(userEmail) ? "?edit=true" : "?email=" + userEmail + "&edit=true");
+    document.location.href = baseUrl + "/dashboard/" + dashboardName + "?edit=true";
 });
 
 $("#create-nav-button").on("click", function () {
     var userEmail = getParams(document.location.href, "email");
-    document.location.href = designerUrl + (isEmptyOrWhiteSpace(userEmail) ? "" : "?email=" + userEmail);
+    document.location.href = designerUrl;
 });
 
 function clientBeforeNavigateToDashboard(arg) {
     dashboardName = arg.PublishName;
     var userEmail = getParams(document.location.href, "email");
-    document.location.href = baseUrl + "/dashboard/" + dashboardName + (isEmptyOrWhiteSpace(userEmail) ? "" : "?email=" + userEmail);
+    document.location.href = baseUrl + "/dashboard/" + dashboardName;
 }
 
 $("#cancel-nav-button").on("click", function () {
     var userEmail = getParams(document.location.href, "email");
     var userEmailParam = isEmptyOrWhiteSpace(userEmail) ? "" : "?email=" +  userEmail;
     if (document.location.pathname.indexOf(designerUrl) === -1) {
-        document.location.href = document.location.pathname.replace("&edit=true", "") + userEmailParam;
+        document.location.href = document.location.pathname.replace("&edit=true", "") ;
     }
     else {
         const Http = new XMLHttpRequest();
-        const delUrl = baseUrl + deleteItemUrl + "?itemId=" + dashboardId + (isEmptyOrWhiteSpace(userEmail) ? "" : "&email=" + userEmail);
+        const delUrl = baseUrl + deleteItemUrl + "?itemId=" + dashboardId;
         Http.open("POST", delUrl);
         Http.send();
         Http.onreadystatechange = (e) => {
-            document.location.href = baseUrl + userEmailParam;
+            document.location.href = baseUrl;
         };        
     }
 });
@@ -213,7 +214,7 @@ function openDesignerForCreate(dbrdName) {
         },
         success: function (data) {
             var userEmail = getParams(document.location.href, "email");
-            document.location.href = designerUrl + "?id=" + data.Id + "&name=" + dbrdName + (isEmptyOrWhiteSpace(userEmail) ? "" : "&email=" + userEmail);
+            document.location.href = designerUrl + "?id=" + data.Id + "&name=" + dbrdName;
         }
     });
 }
@@ -237,7 +238,7 @@ function CloseItem() {
 
 function deleteItem(args, dbrdName, itemId) {
     var dlgContent = 'Are you sure you want to delete the Dashboard - ' + dbrdName + '?';
-
+    $("#dialog").html("");
     var dialogObj = new ejdashboard.popups.Dialog({
         header: "Delete Dashboard",
         content: dlgContent,
@@ -439,6 +440,11 @@ $(document).ready(function () {
         e.stopPropagation();
         e.preventDefault();
     });
+  //  $('a[target="_blank"]').each(function () {
+    //    if ($(this).attr('rel') === undefined) {
+      //      $(this).attr("rel", "noreferer noopener");
+      //  }
+    //});
 });
 
 //$(document).on("click", '.dropdown-submenu a.user', function () {
@@ -452,7 +458,7 @@ function switchUser(changedEmail, args) {
     var cookie = getCookie("useremail");
     if(cookie != changedEmail)
         setCookie("useremail", changedEmail);
-    document.location.href = baseUrl + "?email=" + changedEmail;
+    document.location.href = baseUrl;
 }
 
 function getCookie(name) {

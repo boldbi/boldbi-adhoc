@@ -3,6 +3,7 @@
     var serverUrl = globalAppSettings.EmbedDetails.Serverurl;
     var baseUrl = globalAppSettings.EmbedDetails.BaseUrl;
     var environment = globalAppSettings.EmbedDetails.Environment;
+    var siteIdentifier = globalAppSettings.EmbedDetails.SiteIdentifier;
     var authorizeUrl = @Url.Action("GetDetails", "Home");
     var deleteItemUrl = @Url.Action("DeleteItem", "Home");
     var refreshItemUrl = @Url.Action("RefreshItem", "Home");
@@ -36,6 +37,7 @@
     var designerUrl = "@Url.Action("Index", "Designer")";
     var mode = "@(isEdit.ToString().ToLower())" === "true" ? BoldBI.Mode.Design : BoldBI.Mode.View;
     var serverUrl = "@serverUrl";
+    var siteIdentifier = "@siteIdentifier";
     var dashboardPath = "@dashboardPath";
     var environment = "@environment" === "cloud" ? BoldBI.Environment.Cloud : BoldBI.Environment.Enterprise;
     var authorizeUrl = "@authorizeUrl";
