@@ -1,4 +1,4 @@
-# Bold BI Embedded Sample in Adhoc
+# Bold BI Ad Hoc Application
 
 Once downloaded the source code, open the solution in the Visual studio.
 Open the embedDetails.json file in the below location,
